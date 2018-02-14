@@ -59,7 +59,68 @@ Hints:
 lc.update_page('Page about DS', 'Data Science', '''
 <h1 style="color:red;">This is a new title</h1>
 <br></br>
-<ac:link><ri:user ri:username="bloggsj"/></ac:link>
-''')```
+<ac:link>
+	<ri:user ri:username="bloggsj"/>
+</ac:link>
+''')
+```
 
 
+**Linking to relative pages:**
+
+```
+# Lets say you want to link to a page called 'Page about DS 2' which is inside the same space
+
+lc.update_page('Page about DS', 'Data Science', '''
+<h1 style="color:red;">This is a new title</h1>
+<br></br>
+<ac:link>
+	<ri:page ri:content-title="Page about DS 2"/>
+</ac:link>
+''')
+```
+
+
+**Linking to pages in other spaces:**
+
+```
+# Lets say you want to link to a page called 'Page not about DS' which is in the space 'Not Data Science' (which has key NDS)
+
+lc.update_page('Page about DS', 'Data Science', '''
+<h1 style="color:red;">This is a new title</h1>
+<br></br>
+<ac:link>
+	<ri:page ri:space-key="NDS" ri:content-title="Page not about DS"/>
+</ac:link>
+''')
+```
+
+
+**Adding emoticons:**
+
+```
+# Lets you have a health check of your servers and you create a dataframe with information about them
+
+df = pd.DataFrame({
+    'Server name':['server x','server y','server z'],
+    'Free disk space':[0.2,0.9,0.5]
+})
+
+def add_emotion(x):
+    
+    if x < 0.4:
+        return '<ac:emoticon ac:name="sad" />'
+    elif x >= 0.4 and x < 0.6:
+        return '<ac:emoticon ac:name="smile" />'
+    else:
+        return '<ac:emoticon ac:name="laugh" />'
+
+df['Status'] = df['Free disk space'].apply(lambda x: add_emotion(x))
+
+df.set_index('Server name', inplace=True)
+
+lc.update_page('Page about DS', 'Data Science', df.to_html(escape=False))
+```
+
+
+For more ideas see the [confluence api docs](https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html)
