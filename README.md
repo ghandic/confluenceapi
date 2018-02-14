@@ -68,7 +68,6 @@ Hints:
 lc.update_page('Page about DS', 'Data Science', '''
 <h1 style="color:red;">This is a new title</h1>
 <br></br>
-<<<<<<< HEAD
 <ac:link>
 	<ri:user ri:username="bloggsj"/>
 </ac:link>
