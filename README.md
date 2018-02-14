@@ -46,6 +46,15 @@ lc.add_table_to_page('Page about DS', 'Data Science', df)
 
 # Delete a page
 lc.delete_page('Page about DS', 'Data Science')
+
+# Add attachment to page
+lc.upload_attachment('demo.txt', 'Page about DS', 'Data Science', 'First upload!')
+
+# Update attachment on page
+lc.update_attachment('demo.txt', 'Page about DS', 'Data Science', 'Second upload!')
+
+# Delete an attachment on page
+lc.delete_attachment('demo.txt', 'Page about DS', 'Data Science')
 ```
 
 Hints:
