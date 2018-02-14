@@ -3,23 +3,41 @@ import requests
 import json
 import pandas as pd
 
+
 class Confluence(object):
     
     """
     Example:
     --------
     
-        lc = Confluence(conf_server, ('admin', 'Password123'))
-        
+        import os
+        import pandas as pd
+        from confluenceapi import Confluence
+
+        conf_server = os.environ['CONFLUENCE_IP'] + ':8090'
+        credentials = ('admin', 'Password123')
+
+        # Create a confluence object ready to submit requests 
+        lc = Confluence(conf_server, credentials)
+
         # Update a page with raw HTML
-        lc.update_page('page about ds', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
-        
+        lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
+
         # Add a table to a page from pandas
         df = pd.get_dummies(pd.Series(list('abcd')))
-        lc.add_table_to_page('page about ds', 'Data Science', df)
-        
+        lc.add_table_to_page('Page about DS', 'Data Science', df)
+
         # Delete a page
-        lc.delete_page('page about ds', 'Data Science')
+        lc.delete_page('Page about DS', 'Data Science')
+        
+        # Add attachment to page
+        lc.upload_attachment('demo.txt', 'Page about DS', 'Data Science', 'First upload!')
+        
+        # Update attachment on page
+        lc.update_attachment('demo.txt', 'Page about DS', 'Data Science', 'Second upload!')
+        
+        # Delete an attachment on page
+        lc.delete_attachment('demo.txt', 'Page about DS', 'Data Science')
     """
     
     
@@ -39,14 +57,23 @@ class Confluence(object):
         self.url = "http://{server}/rest/api/content".format(server=server)
         self.headers = {'Accept':'application/json', 'Content-Type':'application/json'}
         self.auth = auth
+        
+        self.__verify_user()
 
+        
+    def __verify_user(self):
+        
+        response = requests.get(url=self.url + '/search?cql=user=' + self.auth[0], headers=self.headers, auth=self.auth)
+        if response.status_code != 200:
+            print("Couldn't connect to Confluence API with those credentials or server address")
+    
         
     def delete_page(self, page_name, space_name):
         """
         Parameters:
         -----------
             
-            page_name: srt, the title of the page
+            page_name: str, the title of the page
             space_key: str, the space key where the page is stored
             
         """
@@ -65,7 +92,7 @@ class Confluence(object):
         Parameters:
         -----------
             
-            page_name: srt, the title of the page
+            page_name: str, the title of the page
             space_key: str, the space key where the page is stored
             body: str, a string full of html to populate the page with
         """
@@ -98,7 +125,7 @@ class Confluence(object):
         Parameters:
         -----------
             
-            page_name: srt, the title of the page
+            page_name: str, the title of the page
             space_key: str, the space key where the page is stored
             df: DataFrame, dataframe to populate the page with
         """
@@ -109,6 +136,90 @@ class Confluence(object):
         
         return self.update_page(page_name, space_name, df.to_html())
         
+        
+    def upload_attachment(self, filepath, page_name, space_name, comment=None):
+        """
+        Parameters:
+        -----------
+            
+            filepath: str, the path to where the file is stored
+            page_name: str, the title of the page
+            space_key: str, the space key where the page is stored
+            comment: str, (optional) a comment to accompany the attachment
+            
+        """
+        
+        assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
+        assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
+        assert isinstance(filepath, str), 'filepath should be the path to where the file is stored locally'
+        assert isinstance(comment, str) or comment is None, 'comment must be a string or None'
+        
+        pageid = self._get_pageid(page_name, space_name)
+        files = {'file': open(filepath, 'rb')}
+        data = {}
+        headers={"X-Atlassian-Token": "nocheck"}
+        
+        if comment:
+            data = {"comment":comment}
+        
+        response = requests.post(url=self.url + '/' + str(pageid) + '/child/attachment',
+                                 headers=headers, auth=self.auth, files=files, data=data)
+        
+        return response
+    
+    
+    def update_attachment(self, filepath, page_name, space_name, comment=None):
+        """
+        Parameters:
+        -----------
+            
+            filepath: str, the path to where the file is stored
+            page_name: str, the title of the page
+            space_key: str, the space key where the page is stored
+            comment: str, (optional) a comment to accompany the attachment update
+            
+        """
+        
+        assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
+        assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
+        assert isinstance(filepath, str), 'filepath should be the path to where the file is stored locally'
+        assert isinstance(comment, str) or comment is None, 'comment must be a string or None'
+        
+        attachment_name = os.path.basename(filepath)
+        attachmentid = self._get_attachmentid(attachment_name, page_name, space_name)
+        pageid = self._get_pageid(page_name, space_name)
+        
+        files = {'file': open(filepath, 'rb')}
+        data = {}
+        headers={"X-Atlassian-Token": "nocheck"}
+        
+        if comment:
+            data = {"comment":comment}
+        
+        response = requests.post(url=self.url + '/' + str(pageid) + '/child/attachment/' + attachmentid + '/data',
+                                 headers=headers, auth=self.auth, files=files, data=data)
+        
+        return response
+    
+    def delete_attachment(self, attachment_name, page_name, space_name):
+        """
+        Parameters:
+        -----------
+            
+            filepath: str, the path to where the file is stored
+            page_name: str, the title of the page
+            space_key: str, the space key where the page is stored
+            
+        """
+        
+        assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
+        assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
+        assert isinstance(attachment_name, str), 'attachment_name should be the name of the attachemt to delete'
+        
+        attachmentid = self._get_attachmentid(attachment_name, page_name, space_name)
+        response = requests.delete(url=self.url + '/' + attachmentid, headers=self.headers, auth=self.auth)
+        
+        return response
     
     
     def _get_version(self, pageid):
@@ -131,7 +242,7 @@ class Confluence(object):
         Parameters:
         -----------
             
-            page_name: srt, the title of the page
+            page_name: str, the title of the page
             space_key: str, the space key where the page is stored
             
         """
@@ -164,5 +275,31 @@ class Confluence(object):
         space_name = json.loads(response.text)['results'][0]['_expandable']['space'].rsplit('/', 1)[-1]
     
         return space_name
-    
-    
+        
+        
+    def _get_attachmentid(self, attachment_name, page_name, space_name):
+        """
+        Parameters:
+        -----------
+            
+            attachment_name: str, the name of the file attachment
+            page_name: str, the title of the page
+            space_key: str, the space key where the page is stored
+            
+        """
+        
+        assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
+        assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
+        assert isinstance(attachment_name, str), 'attachment_name should be a file name that is stored in the page and space'
+        
+        pageid = self._get_pageid(page_name, space_name)
+        
+        response = requests.get(url=self.url + '/' + str(pageid) + '/child/attachment',
+                     headers=self.headers, auth=self.auth)
+        
+        for result in json.loads(response.text)['results']:
+            if result['title'] == attachment_name:
+                return result['id']
+        else:
+            print('No attachment found')
+        
