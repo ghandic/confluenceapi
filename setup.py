@@ -9,7 +9,7 @@ setup(name='confluenceapi',
       author_email='andrewchallis@hotmail.co.uk',
       license='MIT',
       packages=['confluenceapi'],
-      zip_safe=False,
+      zip_safe=True,
       install_requires=[
           'pandas',
       ],)
