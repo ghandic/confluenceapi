@@ -7,7 +7,7 @@ You can test out this package using a Jupyter notebook and Confluence running in
 
 Make sure you create a folder on your desktop called confluence or change where the volume will be stored (by changing ~/Desktop/confluence to your required folder)
 
-```
+```bash
 docker run -v ~/Desktop/confluence:/var/atlassian/application-data/confluence --name="confluence" -d -p 8090:8090 -p 8091:8091 atlassian/confluence-server
 
 docker-ip() {
@@ -24,7 +24,7 @@ docker run -d -p 8888:8888 --name notebook -e CONFLUENCE_IP=$CONFLUENCE_IP -v ~:
 
 Example:
 --------
-```
+```python
 # Assuming you have used the docker environment stated above you should be able to get the server ip as we added it to the environment variables inside the docker container. We also know what port the confluence container is running on (8090)
 
 import os
@@ -62,7 +62,7 @@ Hints:
 
 **Tagging users in your html body:**
 
-```
+```python
 # Lets say you want to tag Joe Bloggs with username bloggsj
 
 lc.update_page('Page about DS', 'Data Science', '''
@@ -77,7 +77,7 @@ lc.update_page('Page about DS', 'Data Science', '''
 
 **Linking to relative pages:**
 
-```
+```python
 # Lets say you want to link to a page called 'Page about DS 2' which is inside the same space
 
 lc.update_page('Page about DS', 'Data Science', '''
@@ -92,7 +92,7 @@ lc.update_page('Page about DS', 'Data Science', '''
 
 **Linking to pages in other spaces:**
 
-```
+```python
 # Lets say you want to link to a page called 'Page not about DS' which is in the space 'Not Data Science' (which has key NDS)
 
 lc.update_page('Page about DS', 'Data Science', '''
@@ -107,7 +107,7 @@ lc.update_page('Page about DS', 'Data Science', '''
 
 **Adding emoticons:**
 
-```
+```python
 # Lets you have a health check of your servers and you create a dataframe with information about them
 
 df = pd.DataFrame({
