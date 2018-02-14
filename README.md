@@ -1,6 +1,11 @@
 # confluenceapi
 A python package for connecting to conluence API
 
+## Installation
+```bash
+pip install git+https://github.com/ghandic/confluenceapi.git
+```
+
 
 ## Demo environment
 You can test out this package using a Jupyter notebook and Confluence running in Docker by running the following:
