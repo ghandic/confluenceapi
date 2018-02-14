@@ -48,4 +48,18 @@ lc.add_table_to_page('Page about DS', 'Data Science', df)
 lc.delete_page('Page about DS', 'Data Science')
 ```
 
+Hints:
+------
+
+**Tagging users in your html body:**
+
+```
+# Lets say you want to tag Joe Bloggs with username bloggsj
+
+lc.update_page('Page about DS', 'Data Science', '''
+<h1 style="color:red;">This is a new title</h1>
+<br></br>
+<ac:link><ri:user ri:username="bloggsj"/></ac:link>
+''')```
+
 
