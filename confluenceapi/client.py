@@ -134,7 +134,11 @@ class Confluence(object):
         assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
         assert isinstance(df, pd.DataFrame), 'df should be a dataframe to populate the page with'
         
-        return self.update_page(page_name, space_name, df.to_html())
+        # Pandas will truncate after 50 chars if this isnt in
+        with pd.option_context('display.max_colwidth', -1):
+            output = df.to_html()
+        
+        return self.update_page(page_name, space_name, output)
         
         
     def upload_attachment(self, filepath, page_name, space_name, comment=None):
