@@ -137,4 +137,22 @@ lc.update_page('Page about DS', 'Data Science', df.to_html(escape=False))
 ```
 
 
+**Using macros:**
+
+```python
+# Let's add a warning message using the warning macro
+
+lc.update_page('Page about DS', 'Data Science', '''
+<h1 style="color:red;">This is a new title</h1>
+<br></br>
+<ac:structured-macro ac:name="warning">
+<ac:rich-text-body>
+<p> Oh no, the cat is out of the bag!</p>
+</ac:rich-text-body>
+</ac:structured-macro>
+''')
+```
+
+
+
 For more ideas see the [confluence api docs](https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html)
