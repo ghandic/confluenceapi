@@ -153,6 +153,26 @@ lc.update_page('Page about DS', 'Data Science', '''
 ''')
 ```
 
+**Creating graphs:**
 
+```python
+# Let's add a graph of fish sales for 2006, 2007
+df = pd.DataFrame({'name':['Salmon', 'Herring', 'Shrimp'],
+                   '2006': [100, 200, 50],
+                   '2007': [300, 400, 200]})
+df.set_index(['name'], inplace=True)
+
+graph_type = 'bar' # Can be 'line', 'pie', 'bar', 'area'
+title = 'Fish Sold'
+
+lc.update_page('Page about DS', 'Data Science', '''
+<ac:structured-macro ac:name="chart">
+<ac:parameter ac:name="title">''' + title + '''</ac:parameter>
+<ac:parameter ac:name="type">''' + graph_type + '''</ac:parameter>
+<ac:rich-text-body>"''' + df.to_html() + '''
+</ac:rich-text-body>
+</ac:structured-macro>
+''')
+```
 
 For more ideas see the [confluence api docs](https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html)
