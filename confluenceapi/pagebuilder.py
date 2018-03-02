@@ -21,7 +21,7 @@ class ConfluencePageBuilder(object):
         
         
     def add_table(self, df):
-    	assert isinstance(df, pd.DataFrame), "df should be a pandas data frame object"
+        assert isinstance(df, pd.DataFrame), "df should be a pandas data frame object"
         self.html += df.to_html()
     
     
