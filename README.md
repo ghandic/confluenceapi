@@ -153,6 +153,8 @@ lc.update_page('Page about DS', 'Data Science', '''
 ''')
 ```
 
+Note: to see more examples of builing macros check out [this confluence page](https://confluence.atlassian.com/display/CONF55/Working+with+Macros)
+
 **Creating graphs:**
 
 ```python
