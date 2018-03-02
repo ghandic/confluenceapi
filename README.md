@@ -27,26 +27,53 @@ docker run -d -p 8888:8888 --name notebook -e CONFLUENCE_IP=$CONFLUENCE_IP -v ~:
 ```
 
 
-Example:
+Examples:
 --------
+
+[See the full set of notebook examples](examples)
+
 ```python
 # Assuming you have used the docker environment stated above you should be able to get the server ip as we added it to the environment variables inside the docker container. We also know what port the confluence container is running on (8090)
 
 import os
 import pandas as pd
-from confluenceapi import Confluence
+from confluenceapi import Confluence, ConfluencePageBuilder
 
 conf_server = os.environ['CONFLUENCE_IP'] + ':8090'
 credentials = ('admin', 'Password123')
 
+# Creating a dummy dataframe for later
+df = pd.DataFrame({'2006': [100, 200, 50], '2007': [300, 400, 200]},
+                  index=['Salmon', 'Herring', 'Shrimp'])
+
 # Create a confluence object ready to submit requests 
 lc = Confluence(conf_server, credentials)
+
+# Create a confluence page builder to develop a page
+cp = ConfluencePageBuilder()
+
+# Build a page with a title, toc, note, codeblock, table and a chart then tag myself (admin)
+cp.add_title("My title", "h2")
+cp.add_table_of_contents()
+cp.add_warning("Oh no, the cat is out of the bag!", "note", "cat bag")
+cp.add_code_block("import pandas as pd", language="python", theme="midnight")
+cp.add_title("My graph", "h3")
+cp.add_chart(df, 'area')
+cp.add_new_line()
+cp.add_table(df)
+cp.add_custom_html("The page was last updated by:")
+cp.add_tag_user("admin")
+
+# Now update the confluence page with the built page
+lc.update_page('Page about DS', 'Data Science', cp.render())
+
+# Restart a ConfluencePageBuilder object (clears the html)
+cp.restart()
 
 # Update a page with raw HTML
 lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
 
 # Add a table to a page from pandas
-df = pd.get_dummies(pd.Series(list('abcd')))
 lc.add_table_to_page('Page about DS', 'Data Science', df)
 
 # Delete a page
