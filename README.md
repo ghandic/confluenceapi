@@ -73,9 +73,6 @@ cp.restart()
 # Update a page with raw HTML
 lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
 
-# Add a table to a page from pandas
-lc.add_table_to_page('Page about DS', 'Data Science', df)
-
 # Delete a page
 lc.delete_page('Page about DS', 'Data Science')
 

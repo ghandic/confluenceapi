@@ -1,7 +1,6 @@
 import os
 import requests
 import json
-import pandas as pd
 
 
 class Confluence(object):
@@ -118,27 +117,6 @@ class Confluence(object):
         
         response = requests.put(url=self.url + '/' + str(pageid), headers=self.headers, auth=self.auth, data=data)
         return response
-    
-    
-    def add_table_to_page(self, page_name, space_name, df):
-        """
-        Parameters:
-        -----------
-            
-            page_name: str, the title of the page
-            space_key: str, the space key where the page is stored
-            df: DataFrame, dataframe to populate the page with
-        """
-        
-        assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
-        assert isinstance(space_name, str), 'space_name should be the space name where the page is stored'
-        assert isinstance(df, pd.DataFrame), 'df should be a dataframe to populate the page with'
-        
-        # Pandas will truncate after 50 chars if this isnt in
-        with pd.option_context('display.max_colwidth', -1):
-            output = df.to_html()
-        
-        return self.update_page(page_name, space_name, output)
         
         
     def upload_attachment(self, filepath, page_name, space_name, comment=None):
