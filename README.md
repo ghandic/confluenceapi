@@ -22,8 +22,6 @@ docker-ip() {
 export CONFLUENCE_IP=`docker-ip confluence`
 
 docker run -d -p 8888:8888 --name notebook -e CONFLUENCE_IP=$CONFLUENCE_IP -v ~:/home/jovyan/work jupyter/scipy-notebook start-notebook.sh --NotebookApp.token=''
-
-
 ```
 
 
@@ -49,6 +47,9 @@ df = pd.DataFrame({'2006': [100, 200, 50], '2007': [300, 400, 200]},
 # Create a confluence object ready to submit requests 
 lc = Confluence(conf_server, credentials)
 
+# Add a blank page to confluence
+lc.add_page('Page about DS', 'Data Science')
+
 # Create a confluence page builder to develop a page
 cp = ConfluencePageBuilder()
 
@@ -69,6 +70,13 @@ lc.update_page('Page about DS', 'Data Science', cp.render())
 
 # Restart a ConfluencePageBuilder object (clears the html)
 cp.restart()
+# Get the current content of a page
+current_content = lc.get_page_contents('Page about DS', 'Data Science')
+# Add some new content and update the page
+cp.add_custom_html(current_content)
+cp.add_new_line()
+cp.add_warning("We just appended this warning!", "warning")
+lc.update_page('Page about DS', 'Data Science', cp.render())
 
 # Update a page with raw HTML
 lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
