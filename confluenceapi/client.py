@@ -5,51 +5,49 @@ import json
 class Confluence(object):
     
     """
-    Example:
-    --------
-    
-        import os
-        from confluenceapi import Confluence
-
-        conf_server = os.environ['CONFLUENCE_IP'] + ':8090'
-        credentials = ('admin', 'Password123')
-
-        # Create a confluence object ready to submit requests 
-        lc = Confluence(conf_server, credentials)
-
-        # Add a page
-        lc.add_page("Page about DS", "Data Science")
+        .. code-block:: python
         
-        # Add a child page to this page
-        lc.add_page("New page about DS", "Data Science", "Page about DS", '<h1 style="color:red;">This is a title</h1>')
+          ## Example
+          import os
+          from confluenceapi import Confluence
 
-        # Update a page with raw HTML
-        lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
+          conf_server = os.environ['CONFLUENCE_IP'] + ':8090'
+          credentials = ('admin', 'Password123')
 
-        # Delete a page
-        lc.delete_page('Page about DS', 'Data Science')
+          # Create a confluence object ready to submit requests 
+          lc = Confluence(conf_server, credentials)
+
+          # Add a page
+          lc.add_page("Page about DS", "Data Science")
         
-        # Get the contents of a page
-        lc.get_page_contents("Page about DS", "Data Science")
+          # Add a child page to this page
+          lc.add_page("New page about DS", "Data Science", "Page about DS", '<h1 style="color:red;">This is a title</h1>')
+
+          # Update a page with raw HTML
+          lc.update_page('Page about DS', 'Data Science', '<h1 style="color:red;">This is a new title</h1>')
+
+          # Delete a page
+          lc.delete_page('Page about DS', 'Data Science')
         
-        # Add attachment to page
-        lc.upload_attachment('demo.txt', 'Page about DS', 'Data Science', 'First upload!')
+          # Get the contents of a page
+          lc.get_page_contents("Page about DS", "Data Science")
         
-        # Update attachment on page
-        lc.update_attachment('demo.txt', 'Page about DS', 'Data Science', 'Second upload!')
+          # Add attachment to page
+          lc.upload_attachment('demo.txt', 'Page about DS', 'Data Science', 'First upload!')
         
-        # Delete an attachment on page
-        lc.delete_attachment('demo.txt', 'Page about DS', 'Data Science')
+          # Update attachment on page
+          lc.update_attachment('demo.txt', 'Page about DS', 'Data Science', 'Second upload!')
+        
+          # Delete an attachment on page
+          lc.delete_attachment('demo.txt', 'Page about DS', 'Data Science')
     """
     
     
     def __init__(self, server, auth):
         """
-        Parameters:
-        -----------
-            
-            server: string, where the server is running eg: 172.17.0.2:8090
-            auth: tuple of length 2, (username, password)
+        Arguments:
+            server (str): where the server is running eg: 172.17.0.2:8090
+            auth (tuple): tuple of length 2, (username, password)
         
         """
         
@@ -65,20 +63,23 @@ class Confluence(object):
 
         
     def __verify_user(self):
+        """Verifies that the username is valid"""
         
-        response = requests.get(url=self.api_url + 'content/search?cql=user=' + self.auth[0], headers=self.headers, auth=self.auth)
+        response = requests.get(url=self.api_url + 'content/search?cql=user=' + self.auth[0], 
+                                headers=self.headers, auth=self.auth)
         if response.status_code != 200:
             print("Couldn't connect to Confluence API with those credentials or server address")
     
         
     def delete_page(self, page_name, space_name, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
-            
+        Arguments:
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+
+        Returns:
+            response (requests.models.Response): The response from the api request
+
         """
         
         assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
@@ -93,12 +94,14 @@ class Confluence(object):
     
     def update_page(self, page_name, space_name, body, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
-            body: str, a string full of html to populate the page with
+        Arguments:
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+            body (str): A string full of html to populate the page with
+
+        Returns:
+            response (requests.models.Response): The response from the api request
+                         
         """
         
         assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
@@ -127,13 +130,14 @@ class Confluence(object):
         
     def upload_attachment(self, filepath, page_name, space_name, comment=None, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            filepath: str, the path to where the file is stored
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
-            comment: str, (optional) a comment to accompany the attachment
+        Arguments:
+            filepath (str): The path to where the file is stored
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+            comment (Optional[str]): A comment to accompany the attachment
+
+        Returns:
+            response (requests.models.Response): The response from the api request
             
         """
         
@@ -159,14 +163,15 @@ class Confluence(object):
     
     def update_attachment(self, filepath, page_name, space_name, comment=None, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            filepath: str, the path to where the file is stored
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
-            comment: str, (optional) a comment to accompany the attachment update
-            
+        Arguments:
+            filepath (str): The path to where the file is stored
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+            comment (Optional[str]): A comment to accompany the attachment
+
+        Returns:
+            response (requests.models.Response): The response from the api request
+
         """
         
         assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
@@ -194,12 +199,13 @@ class Confluence(object):
     
     def delete_attachment(self, attachment_name, page_name, space_name, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            attachment_name: str, the name of the stored attachment
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
+        Arguments:
+            attachment_name (str): The name of the stored attachment
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+
+        Returns:
+            response (requests.models.Response): The response from the api request
             
         """
         
@@ -217,26 +223,29 @@ class Confluence(object):
     
     def _get_version(self, pageid):
         """
-        Parameters:
-        -----------
-            
-            pageid: int, the page id for the confluence page
+        Arguments:
+            pageid (int): The page id for the confluence page
+
+        Returns:
+            response (requests.models.Response): The response from the api request
             
         """
         
         assert isinstance(pageid, int), 'pageid should be an integer which corresponds to a page on the confluence server'
 
-        response = requests.get(url=self.api_url + 'content/' + str(pageid) + '?expand=version', headers=self.headers, auth=self.auth)
+        response = requests.get(url=self.api_url + 'content/' + str(pageid) + '?expand=version',
+                                headers=self.headers, auth=self.auth)
         return response
 
     
     def _get_pageid(self, page_name, space_name, space_name_as_key):
         """
-        Parameters:
-        -----------
-            
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
+        Arguments:
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+
+        Returns:
+            pageid (int): The pageid for the given page_name and space_name
             
         """
         
@@ -255,11 +264,12 @@ class Confluence(object):
     
     def _get_space_key(self, space_name, space_name_as_key):
         """
-        Parameters:
-        -----------
-            
-            space_name: str, the space name you want the key for
-            force_space_name: bool, whether 
+        Arguments:
+            space_name (str): The space name you want the key for
+            force_space_name (bool): Whether to force using the name as the key
+
+        Returns:
+            spacekey (str): The spacekey for the given space_name
             
         """
         
@@ -286,12 +296,13 @@ class Confluence(object):
         
     def _get_attachmentid(self, attachment_name, pageid):
         """
-        Parameters:
-        -----------
-            
-            attachment_name: str, the name of the file attachment
-            pageid: str, the title of the page
-            
+        Arguments:
+            attachment_name (str): The name of the file attachment
+            pageid (str): The pageid where the attachment is stored
+
+        Returns:
+            attachmentid (str): The attachmentid for the given attachment_name on the given pageid
+
         """
         
         assert isinstance(pageid, int), 'pageid should be the pageid of the requred page'
@@ -310,11 +321,12 @@ class Confluence(object):
     
     def get_page_contents(self, page_name, space_name, **kwargs):
         """
-        Parameters:
-        -----------
-            
-            page_name: str, the title of the page
-            space_name: str, the space name where the page is stored
+        Arguments:
+            page_name (str): The title of the page
+            space_name (str): The space name where the page is stored
+
+        Returns:
+            contents (str): The contents of the given page
             
         """
         assert isinstance(page_name, str), 'title should be the title of a page within the space defined'
@@ -330,13 +342,14 @@ class Confluence(object):
     
     def add_page(self, title, space_name, parent_page_name=None, body="", **kwargs):
         """
-        Parameters:
-        -----------
-            
-            title: str, the title of the page to make
-            space_name: str, the space name where the page is stored
-            parent_page_name: str, the name of the parent page for the new page to be stored beneath
-            body: str, the body text for the new page
+        Arguments:
+            title (str): The title of the page to make
+            space_name (str): The space name where the page is stored
+            parent_page_name (str): The name of the parent page for the new page to be stored beneath
+            body (str): The body text for the new page
+
+        Returns:
+            response (requests.models.Response): The response from the api request
             
         """
         space_name_as_key = kwargs.pop('space_name_as_key', False)
@@ -366,11 +379,9 @@ class Confluence(object):
     
     def _verify_space_key(self, space_key):
         """
-        Parameters:
-        -----------
-            
-            space_key: str, the space key to be verified
-            
+        Arguments:
+            space_key (str): The space key to be verified
+
         """
         
         response = requests.get(url=self.api_url + 'space?spaceKey={space_key}'.format(space_key=space_key),
@@ -379,3 +390,4 @@ class Confluence(object):
         check = json.loads(response.text)['results']
         if len(check) != 1:
             raise ValueError('space_key: {space_key} doesnt exist'.format(space_key=space_key))
+
