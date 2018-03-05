@@ -1,4 +1,6 @@
 # confluenceapi
+[![GitHub release](https://img.shields.io/github/release/ghandic/confluenceapi.svg)](http://github.com/ghandic/confluenceapi/releases) [![License](https://img.shields.io/badge/License-MIT_License-green.svg)](http://github.com/ghandic/confluenceapi/)
+
 A python package for connecting to conluence API
 
 ## Installation
